@@ -36,24 +36,21 @@ const getCharacters = async (req, res) => {
 //Functions to interact with the database
 
 
-const getAllCharacters = async (req,res) => {
+const getAllCharacters = async (req, res) => {
+  const nombre = req.query.nombre;
+  const condition = nombre ? { nombre: { $regex: new RegExp(nombre), $options: "i" } } : {};
+
   try {
-    
-    const allPlayers = await Character.find();
-
-
-    console.log('All Characters: ', allPlayers);
-    res.send({ status: "OK", data: allPlayers });
-
-    } catch (error) {
-      console.error('Error retrieving all Characters(getAllCharacter):', error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        message: "Error retrieving all Characters",
-        data: { error: error?.message || error }
-      });
-    }
-}
+    const data = await Character.find(condition);
+    return res.json(data);
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error.message || "Error retrieving all Characters",
+      data: { error: error?.message || error }
+    });
+  }
+};
 
 
 module.exports = {

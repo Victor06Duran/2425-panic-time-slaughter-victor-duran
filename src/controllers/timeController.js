@@ -1,32 +1,22 @@
 const Time = require('../models/Time');
-
+const service = require("../services/service");
 
 //Controller Functions
 
-const getTimes = async (req, res) => {
-
+const getAllDays = async (req, res) => {
+  const day = req.query.day_number;
+  const condition = day ? { day: { $regex: new RegExp(day), $options: "i" } } : {};
 
   try {
-
-    const allTimes = await service.getAllTimes();
-
-    if (allTimes.length === 0) {
-      return res.status(404).send({ message: 'No days found!' });
-    }
-    res.send({ status: "OK", data: allTimes });
-
+    const data = await Time.find(condition);
+    return res.json(data);
   } catch (error) {
-
-    res
-      .status(error?.status || 500)
-      .send({
-        status: "FAILED",
-        message: "ERROR while handling the petition:",
-        data: { error: error?.message || error }
-      });
-
+    res.status(500).send({
+      message:
+        error.message || "Error retrieving all days",
+      data: { error: error?.message || error }
+    });
   }
-
 };
 
 
@@ -74,20 +64,32 @@ const getAllTimes = async () => {
 };
 
 
-const createNewTime = async (newTime) => {
+const createDay = async (req, res) => {
+  const body = req.body
+  const newTime = {
+    _id: body._id,
+    name: body.name,
+    day_number: body.day_number,
+    day_week: body.day_week,
+    km_traveled: body.km_traveled,
+    km_total: body.km_total
+  }
   try {
-    let timeToInsert = new Time(newTime)
-    const createdTime = await timeToInsert.save()
-    return createdTime
-  } catch (error) {
-    throw error
+      const data = await Time.create(newTime);
+      return res.json(data);
+  } catch (err) {
+      res.status(500).send({
+          message:
+              err.message || "Error while creating a new day"
+      });
   }
 };
+
 
 module.exports = {
 
   getAllTimes,
-  createNewTime,
-  getTimes,
+  createDay,
+  getAllDays,
   createTime,
 }
