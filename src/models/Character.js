@@ -14,8 +14,8 @@ const characterSchema = new mongoose.Schema({
   },
 
   equipment: {
-    saddlebag: [],
-    weapons: [],
+    saddlebag: [{ type: 'String' }],
+    weapons: [{ type: 'String' }],
     quiver: { type: 'Number' },
     pouch: {
       coins: { type: 'Number' },
